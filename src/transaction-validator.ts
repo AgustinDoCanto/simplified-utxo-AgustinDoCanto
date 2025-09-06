@@ -68,7 +68,8 @@ export class TransactionValidator {
     const errors: ValidationError[] = [];
 
     // STUDENT ASSIGNMENT: Implement the validation logic above
-      // 1. Existence of UTXOs
+    
+    // 1. Existence of UTXOs
     if (!verifyExistenceOfUTXO(transaction, this.utxoPool)) {
         errors.push(createValidationError(VALIDATION_ERRORS.UTXO_NOT_FOUND, "The specified UTXOs for spent were not found"));
     }
