@@ -9,6 +9,15 @@ import {
 } from './errors';
 
 
+
+const verifyNotZeroAmountInputs = (transaction: Transaction, utxoPool : UTXOPoolManager): boolean => {
+  return transaction.inputs.every(input => {   
+        const inputUTXO = utxoPool.getUTXO(input.utxoId.txId, input.utxoId.outputIndex);
+        return inputUTXO !== null && inputUTXO.amount > 0; 
+    });
+};
+
+
 // 1. Verify the existence of UTXO
 // It receives the entries of the transaction and validates that reference to existing, unespent UTXOs 
 const verifyExistenceOfUTXO = (transaction: Transaction, utxoPool : UTXOPoolManager): boolean  => {
@@ -25,7 +34,7 @@ const verifyExistenceOfUTXO = (transaction: Transaction, utxoPool : UTXOPoolMana
 };
 
 
-// 2. Verify the the balnace of the transaction
+// 2. Verify the the balance of the transaction
 // Verifies that the addition of the input amounts are equal to the output amount
 const verifyBalance = (transaction: Transaction, utxoPool: UTXOPoolManager): boolean => {
   const inputSum = transaction.inputs.reduce((acc, input) => {
@@ -38,20 +47,25 @@ const verifyBalance = (transaction: Transaction, utxoPool: UTXOPoolManager): boo
   return inputSum === outputSum;
 };
 
-// 3. Verify the existence of UTXO
+// 3. Verify the signatures of UTXO
 // Verifies that all inputs are signed by the owner of the UTXOs 
 const verifySignatures = (transaction: Transaction, utxoPool: UTXOPoolManager): boolean => {
-  const data = JSON.stringify({
+  const transactionInputs = transaction.inputs;
+  const transactionData = JSON.stringify({
     id: transaction.id,
-    inputs: transaction.inputs.map(input => ({ utxoId: input.utxoId, owner: input.owner })),
+    inputs: transaction.inputs.map(input => ({
+      utxoId: input.utxoId,
+      owner: input.owner
+    })),
     outputs: transaction.outputs,
     timestamp: transaction.timestamp
   });
 
-  return transaction.inputs.every(input => {
+  return transactionInputs.every(input => {
     const utxo = utxoPool.getUTXO(input.utxoId.txId, input.utxoId.outputIndex);
     if (!utxo) return false;
-    return verify(data, input.signature, utxo.owner);
+    
+    return verify(transactionData, input.signature, utxo.recipient);
   });
 };
 
@@ -76,12 +90,12 @@ export class TransactionValidator {
 
     // 2. Balance
     if (!verifyBalance(transaction, this.utxoPool)) {
-        errors.push(createValidationError(VALIDATION_ERRORS.INVALID_BALANCE, "The addition of the input amounts are not equal to the output amount"));
+        errors.push(createValidationError(VALIDATION_ERRORS.AMOUNT_MISMATCH, "The addition of the input amounts are not equal to the output amount"));
     }
 
     // 3. Signatures
     if (!verifySignatures(transaction, this.utxoPool)) {
-        errors.push(createValidationError(VALIDATION_ERRORS.INVALID_SIGNATURE));
+        errors.push(createValidationError(VALIDATION_ERRORS.NEGATIVE_AMOUNT, "There are some issues in the signature or signatures provided"));
     }
 
     // 4. Double-spending within the same transaction
@@ -89,24 +103,22 @@ export class TransactionValidator {
     for (const input of transaction.inputs) {
         const key = `${input.utxoId.txId}:${input.utxoId.outputIndex}`;
         if (seen.has(key)) {
-        errors.push(createValidationError(VALIDATION_ERRORS.DOUBLE_SPENDING));
+        errors.push(createValidationError(VALIDATION_ERRORS.DOUBLE_SPENDING, "You are trying to reference the same UTXO for spent multiple times"));
         break;
         }
         seen.add(key);
     }
 
+    // Verify not zero amounts inputs
+    if(!verifyNotZeroAmountInputs(transaction, this.utxoPool)){
+        errors.push(createValidationError(VALIDATION_ERRORS.EMPTY_OUTPUTS, "The transaction generates outputs UTXOs with amount value zero"));
+    }
+    
   return {
     valid: errors.length === 0,
     errors
   };  
 
-
-
-
-    return {
-      valid: errors.length === 0,
-      errors
-    };
   }
 
   /**

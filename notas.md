@@ -312,3 +312,103 @@ static createTransaction(
 El mismo recibe una lista de inputs con los UTXOs y la clave privada de sus propietarios, una lista de transacciones de salida y retorna una transaccion nueva con las transacciones de entrada firmadas por la clave privada.
 
 En resumen: Recibe una los inputs para una transaccion, la crea, firma y retorna. 
+
+
+## Crypto.ts
+
+Contiene funciones relacionadas a la clave publica, privada, firmas y verificaciones:
+
+### generateKeyPair - Genera un par de claves Publica y Privada
+
+```typescript
+/**
+ * Generate a key pair using elliptic curve cryptography (secp256k1 - Bitcoin style)
+ * @returns {KeyPair} The generated key pair
+ */
+export function generateKeyPair(): KeyPair {
+  const { publicKey, privateKey } = crypto.generateKeyPairSync('ec', {
+    namedCurve: 'secp256k1',
+    publicKeyEncoding: {
+      type: 'spki',
+      format: 'pem'
+    },
+    privateKeyEncoding: {
+      type: 'pkcs8',
+      format: 'pem'
+    }
+  });
+
+  return {
+    publicKey: publicKey.toString(),
+    privateKey: privateKey.toString()
+  };
+}
+```
+
+## sign - Firma una entrada con la clave privada
+
+```typescript
+/**
+ * Sign data with a private key
+ * @param {string} data - The data to sign
+ * @param {string} privateKey - The private key to use for signing (PEM format)
+ * @returns {string} The signature (hex format)
+ */
+export function sign(data: string, privateKey: string): string {
+  try {
+    const sign = crypto.createSign('SHA256');
+    sign.update(data, 'utf8');
+    sign.end();
+    return sign.sign(privateKey, 'hex');
+  } catch (error) {
+    throw new Error(
+      `Failed to sign data: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}
+```
+
+## verify - Verifica una firma
+
+Recibe:
+
+- **data**: Datos a verificar la firma
+- **signature**: La firma a verificar en formato hexadecimal 
+- **publicKey**: La firma a usar para la verificacion en formato PEM.
+
+Y retorna un boleano true si la firma es valida y false si no.
+
+```typescript
+/**
+ * Verify a signature
+ * @param {string} data - The data to verify
+ * @param {string} signature - The signature to verify (hex format)
+ * @param {string} publicKey - The public key to use for verification (PEM format)
+ * @returns {boolean} Whether the signature is valid
+ */
+export function verify(data: string, signature: string, publicKey: string): boolean {
+  try {
+    const verify = crypto.createVerify('SHA256');
+    verify.update(data, 'utf8');
+    verify.end();
+    return verify.verify(publicKey, signature, 'hex');
+  } catch (error) {
+    return false;
+  }
+}
+```
+
+## hash - Devuelve el hash de los datos proporcionados
+
+Se le proporciona datos en forma de string, los "hashea" y retorna
+
+```typescript
+/**
+ * Hash data using SHA-256
+ * @param {string} data - The data to hash
+ * @returns {string} The hash (hex format)
+ */
+export function hash(data: string): string {
+  return crypto.createHash('sha256').update(data, 'utf8').digest('hex');
+}
+```
