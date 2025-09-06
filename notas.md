@@ -1,5 +1,22 @@
 # Notas
-AGUSTIN DO CANTO - 250230
+Nombre: AGUSTIN DO CANTO
+Nro: 250230
+
+## ASSIGNMENT
+
+### Implementaciones - Validador de transacciones
+
+### Implementaciones - BinaryEncoder
+
+Para implementar el BinaryEncoder me apoye en el uso de IA generativa para aprender la sintaxis de binarios en TypeScript y como convertir cadenas de caracteres y JSON en Arrays de binarios.
+
+Tambien se utilizó para aprender la diferencia entre hashear y serializar.
+
+Hashear: Es unidireccional, transformo una entrada en un hash que es único pero irreversible.
+
+Serializar: Transformo una entrada (objeto) en una Array de 32 bits que puede puede ser desserializado para obtener el objeto original. Es Bidireccional.
+
+
 
 ## Clave pública y clave privada
 
@@ -412,3 +429,4 @@ export function hash(data: string): string {
   return crypto.createHash('sha256').update(data, 'utf8').digest('hex');
 }
 ```
+
