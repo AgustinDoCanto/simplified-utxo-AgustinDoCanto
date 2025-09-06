@@ -12,6 +12,9 @@ function main() {
   const charlie = generateKeyPair();
 
   console.log('👥 Generated key pairs for Alice, Bob, and Charlie');
+  console.log(`ALICE KEYS: ${alice}`)
+  console.log(`BOB KEYS: ${alice}`)
+  console.log(`CHARLIE KEYS: ${alice}`)
 
   // Create UTXO pool and initialize with genesis UTXOs
   const utxoPool = new UTXOPoolManager();
