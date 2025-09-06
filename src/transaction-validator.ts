@@ -7,15 +7,22 @@ import {
   VALIDATION_ERRORS,
   createValidationError
 } from './errors';
+import { TransactionBuilder } from './transaction-builder';
 
 
 
-const verifyNotZeroAmountInputs = (transaction: Transaction, utxoPool : UTXOPoolManager): boolean => {
+const providedZeroAmountInputs = (transaction: Transaction, utxoPool : UTXOPoolManager): boolean => {
   return transaction.inputs.every(input => {   
         const inputUTXO = utxoPool.getUTXO(input.utxoId.txId, input.utxoId.outputIndex);
-        return inputUTXO !== null && inputUTXO.amount > 0; 
+        return inputUTXO !== null && inputUTXO.amount === 0; 
     });
 };
+
+
+const verifyZeroAmountOutputs = (transaction: Transaction, utxoPool : UTXOPoolManager): boolean => {
+  return transaction.outputs.some(output => output.amount === 0);
+};
+
 
 
 // 1. Verify the existence of UTXO
@@ -83,6 +90,16 @@ export class TransactionValidator {
 
     // STUDENT ASSIGNMENT: Implement the validation logic above
     
+    // Verify if provided zero amounts inputs => if true then push an error
+    if(providedZeroAmountInputs(transaction, this.utxoPool)){
+        errors.push(createValidationError(VALIDATION_ERRORS.EMPTY_INPUTS, "The transaction recieves input UTXOs with amount value zero"));
+    }
+
+    if(verifyZeroAmountOutputs(transaction, this.utxoPool)){
+        errors.push(createValidationError(VALIDATION_ERRORS.EMPTY_OUTPUTS, "The transaction generates outputs UTXOs with amount value zero"));
+    }
+
+
     // 1. Existence of UTXOs
     if (!verifyExistenceOfUTXO(transaction, this.utxoPool)) {
         errors.push(createValidationError(VALIDATION_ERRORS.UTXO_NOT_FOUND, "The specified UTXOs for spent were not found"));
@@ -95,7 +112,7 @@ export class TransactionValidator {
 
     // 3. Signatures
     if (!verifySignatures(transaction, this.utxoPool)) {
-        errors.push(createValidationError(VALIDATION_ERRORS.NEGATIVE_AMOUNT, "There are some issues in the signature or signatures provided"));
+        errors.push(createValidationError(VALIDATION_ERRORS.INVALID_SIGNATURE, "There are some issues in the signature or signatures provided"));
     }
 
     // 4. Double-spending within the same transaction
@@ -108,13 +125,8 @@ export class TransactionValidator {
         }
         seen.add(key);
     }
-
-    // Verify not zero amounts inputs
-    if(!verifyNotZeroAmountInputs(transaction, this.utxoPool)){
-        errors.push(createValidationError(VALIDATION_ERRORS.EMPTY_OUTPUTS, "The transaction generates outputs UTXOs with amount value zero"));
-    }
-    
-  return {
+  
+    return {
     valid: errors.length === 0,
     errors
   };  
