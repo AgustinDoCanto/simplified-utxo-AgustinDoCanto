@@ -9,8 +9,6 @@ import {
 } from './errors';
 import { TransactionBuilder } from './transaction-builder';
 
-
-
 const providedZeroAmountInputs = (transaction: Transaction, utxoPool : UTXOPoolManager): boolean => {
   return transaction.inputs.every(input => {   
         const inputUTXO = utxoPool.getUTXO(input.utxoId.txId, input.utxoId.outputIndex);
@@ -22,7 +20,6 @@ const providedZeroAmountInputs = (transaction: Transaction, utxoPool : UTXOPoolM
 const verifyZeroAmountOutputs = (transaction: Transaction, utxoPool : UTXOPoolManager): boolean => {
   return transaction.outputs.some(output => output.amount === 0);
 };
-
 
 
 // 1. Verify the existence of UTXO
@@ -88,7 +85,7 @@ export class TransactionValidator {
   validateTransaction(transaction: Transaction): ValidationResult {
     const errors: ValidationError[] = [];
 
-    // STUDENT ASSIGNMENT: Implement the validation logic above
+    // STUDENT ASSIGNMENT: Implement the validation logic above => Challenge Accepted :P
     
     // Verify if provided zero amounts inputs => if true then push an error
     if(providedZeroAmountInputs(transaction, this.utxoPool)){
@@ -98,7 +95,6 @@ export class TransactionValidator {
     if(verifyZeroAmountOutputs(transaction, this.utxoPool)){
         errors.push(createValidationError(VALIDATION_ERRORS.EMPTY_OUTPUTS, "The transaction generates outputs UTXOs with amount value zero"));
     }
-
 
     // 1. Existence of UTXOs
     if (!verifyExistenceOfUTXO(transaction, this.utxoPool)) {
@@ -130,8 +126,7 @@ export class TransactionValidator {
     valid: errors.length === 0,
     errors
   };  
-
-  }
+}
 
   /**
    * Create a deterministic string representation of the transaction for signing
