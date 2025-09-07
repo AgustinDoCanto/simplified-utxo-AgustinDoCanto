@@ -4,7 +4,22 @@ Nro: 250230
 
 ## ASSIGNMENT
 
+Para esta entrega se implementaron correctamente las validaciones y el bonus binaryEncoder. Todos los test pasaron (incluyendo el bonus)
+
+![alt text](Img/test_runned.png)
+
 ### Implementaciones - Validador de transacciones
+
+Se implementó el validador de transacciones con validaciones para:
+
+- [X] Todos los UTXOs de entrada existen y no están gastados
+- [X] El monto total de entrada iguala al monto total de salida
+- [X] Todas las firmas son válidas
+- [X] No hay doble gasto dentro de las transacciones
+- [X] Todas las pruebas requeridas pasan
+- [X] El código está limpio y bien comentado
+
+No hubo impedimentos significativos. Se realizó un repaso de los conocimientos dados en el curso para relacionarlos con la tarea, los mismos fueron detallados en la sección de "Conocimientos del curso relacionados con la tarea"
 
 ### Implementaciones - BinaryEncoder
 
@@ -16,7 +31,45 @@ Hashear: Es unidireccional, transformo una entrada en un hash que es único pero
 
 Serializar: Transformo una entrada (objeto) en una Array de 32 bits que puede puede ser desserializado para obtener el objeto original. Es Bidireccional.
 
+**Decisiones de diseño:**
 
+Decidí utilizar el enconding Little Endian que es un forma de ordenar los binarios de los bytes más significativos a los menos significativos (Ver Encoding)[https://en.wikipedia.org/wiki/Endianness].
+
+Se tomó esta decisión ya que este es el encoding natural en sistemas embebidos (como Arduino), redes y de bajo nivel (hardware). Esto quiere decir que codificar datos y decodificarlos con este encoding es nativo en esas plataformas, esto permitiria por ejemplo guardar las transacciones en formato binario dentro de una tarjeta SD y accederlas a través de un disposivo con recursos limitados de hardware como un Arduino.
+
+**Modificaciones en index.ts**
+
+Se modificó index.ts para mostrar la eficiencia en espacio del encoding para el guardado de transacciones:
+
+![alt text](Img/encoding_efficiency.png)
+
+Como se puede observar la efficiency dle encoding ronda el 16.5% - 17%.
+
+Lo que para un millon de transacciones de 1KB cada una corresponde a:
+
+**Calculo de bytes ahorrados:**
+
+Referencia:
+
+Tamaño JSON (bytes): Tamaño que ocupan los datos en JSON (texto plano) en bytes. 
+Tamaño encoding binario (bytes):  Tamaño que ocupan los datos en binario en bytes (asumiendo saving promedio del 16.4%).
+
+
+$$16.4% de 1000 = (1000*16.4)/100 = 164 bytes ahorrados$$
+
+En final de bytes ahorrad:
+
+$$1000 - 164 = 836 bytes totales$$
+
+| Cantidad de transacciones | Tamaño JSON (bytes) | Tamaño encoding binario (bytes) | Tamaño salvado |
+|:-------------------------:|:-------------------:|:-------------------------------:|:--------------:|
+|       1 transaccion       |   1000 bytes - 1KB  |        836 bytes - 0.83KB       |  164 bytes   |
+|     100 transacciones     | 100 KiloBytes - 100KB |      83600 bytes - 83.6KB     |    16.4 KB |
+|    1000 transacciones     |       1 MB            |        836000 - 863KB          |   164 KB  |
+|  1 Millon transacciones   |   1.000.000.000 - 1GB |       86.300.000 - 863 MB      |    164 MB |
+
+
+## Conocimientos del curso relacionados con la tarea
 
 ## Clave pública y clave privada
 

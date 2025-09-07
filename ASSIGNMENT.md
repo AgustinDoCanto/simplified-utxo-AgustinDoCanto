@@ -71,16 +71,16 @@ Si completás la tarea principal, implementá codificación binaria en `src/util
 Esta tarea vale **5 puntos** del total del curso.
 
 ### Requerido:
-- [ ] Todos los UTXOs de entrada existen y no están gastados
-- [ ] El monto total de entrada iguala al monto total de salida
-- [ ] Todas las firmas son válidas
-- [ ] No hay doble gasto dentro de las transacciones
-- [ ] Todas las pruebas requeridas pasan
-- [ ] El código está limpio y bien comentado
+- [X] Todos los UTXOs de entrada existen y no están gastados
+- [X] El monto total de entrada iguala al monto total de salida
+- [X] Todas las firmas son válidas
+- [X] No hay doble gasto dentro de las transacciones
+- [X] Todas las pruebas requeridas pasan
+- [X] El código está limpio y bien comentado
 
 ### Bonus (no cuenta para la calificación):
-- [ ] Codificación/decodificación binaria implementada correctamente
-- [ ] Ahorros significativos de espacio demostrados
+- [X] Codificación/decodificación binaria implementada correctamente
+- [X] Ahorros significativos de espacio demostrados
 - [ ] Casos extremos adicionales manejados
 - [ ] Optimizaciones de rendimiento
 
