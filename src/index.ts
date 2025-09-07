@@ -1,6 +1,7 @@
 import { UTXOPoolManager } from './utxo-pool';
 import { generateKeyPair } from './utils/crypto';
 import { TransactionBuilder } from './transaction-builder';
+import { getEncodingEfficiency  } from './utils/binary-encoding'; // to calculate and show the efficiency of the encoding
 
 // Demo script showing the UTXO system in action
 function main() {
@@ -12,6 +13,9 @@ function main() {
   const charlie = generateKeyPair();
 
   console.log('👥 Generated key pairs for Alice, Bob, and Charlie');
+  console.log(`ALICE KEYS: ${alice}`)
+  console.log(`BOB KEYS: ${alice}`)
+  console.log(`CHARLIE KEYS: ${alice}`)
 
   // Create UTXO pool and initialize with genesis UTXOs
   const utxoPool = new UTXOPoolManager();
@@ -64,6 +68,32 @@ function main() {
     utxoPool.processTransaction(tx2);
     console.log('Transaction processed');
   }
+
+    // Calculates and show the efficiency of the encoding
+    const efficiency = getEncodingEfficiency(tx1);
+    console.log(`💾 Encoding efficiency for tx1: JSON=${efficiency.jsonSize} bytes, Binary=${efficiency.binarySize} bytes, Savings=${efficiency.savings}`);
+
+    if (bobNewUTXO) {
+    const tx2 = TransactionBuilder.createTransaction(
+        [{ utxo: bobNewUTXO, privateKey: bob.privateKey }],
+        [
+        { amount: 150, recipient: charlie.publicKey },
+        { amount: 150, recipient: bob.publicKey }
+        ]
+    );
+
+    console.log('✅ Transaction created and signed successfully');
+    console.log(`Transaction ID: ${tx2.id}`);
+
+    // Mostrar eficiencia de encoding
+    const efficiency2 = getEncodingEfficiency(tx2);
+    console.log(`💾 Encoding efficiency for tx2: JSON=${efficiency2.jsonSize} bytes, Binary=${efficiency2.binarySize} bytes, Savings=${efficiency2.savings}`);
+
+    utxoPool.processTransaction(tx2);
+    console.log('Transaction processed');
+    }
+
+  
 
   // Final balances
   console.log('\n💰 Final balances:');

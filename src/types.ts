@@ -38,6 +38,7 @@ export interface UTXOPool {
   [key: string]: UTXO;
 }
 
+
 export function getUTXOKey(utxoId: UtxoId): string;
 export function getUTXOKey(txId: string, outputIndex: number): string;
 export function getUTXOKey(utxoIdOrTxId: UtxoId | string, outputIndex?: number): string {

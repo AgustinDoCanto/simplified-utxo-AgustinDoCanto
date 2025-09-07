@@ -10,9 +10,9 @@ export class TransactionBuilder {
    * @returns {Transaction} The new transaction
    */
   static createTransaction(
-    inputs: { utxo: UTXO; privateKey: string }[],
-    outputs: TransactionOutput[]
-  ): Transaction {
+        inputs: { utxo: UTXO; privateKey: string }[],
+        outputs: TransactionOutput[] 
+    ): Transaction {
     const transaction: Transaction = {
       id: uuidv4(),
       inputs: [],
